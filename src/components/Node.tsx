@@ -40,7 +40,7 @@ export function formatUptime(seconds: number, t: TFunction): string {
   return parts.join(" ");
 }
 
-function getTrafficPercentage(totalUp: number, totalDown: number, limit: number, type: "max" | "min" | "sum" | "up" | "down") {
+export function getTrafficPercentage(totalUp: number, totalDown: number, limit: number, type: "max" | "min" | "sum" | "up" | "down") {
   if (limit === 0) return 0;
   switch (type) {
     case "max":
@@ -58,7 +58,7 @@ function getTrafficPercentage(totalUp: number, totalDown: number, limit: number,
   }
 }
 
-function getTrafficUsed(totalUp: number, totalDown: number, type: "max" | "min" | "sum" | "up" | "down") {
+export function getTrafficUsed(totalUp: number, totalDown: number, type: "max" | "min" | "sum" | "up" | "down") {
   switch (type) {
     case "max":
       return Math.max(totalUp, totalDown);
@@ -75,7 +75,7 @@ function getTrafficUsed(totalUp: number, totalDown: number, type: "max" | "min" 
   }
 }
 
-function formatTrafficPercentage(value: number): string {
+export function formatTrafficPercentage(value: number): string {
   if (!Number.isFinite(value) || value <= 0) return "0%";
   if (value >= 100) return `${value.toFixed(1)}%`;
   if (value >= 10) return `${value.toFixed(1)}%`;
