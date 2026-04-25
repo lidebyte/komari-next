@@ -66,6 +66,7 @@ const STATUS_CARDS_STORAGE_KEY = "statusCardsVisibility";
 const STATUS_CARDS_CHANGE_EVENT = "statusCardsVisibilityChange";
 const NODE_VIEW_STORAGE_KEY = "nodeViewMode";
 const NODE_VIEW_CHANGE_EVENT = "nodeViewModeChange";
+const LOCAL_OVERRIDE_BASE_SIGNATURE_KEY = "komari-theme-local-override-base";
 
 const COLOR_THEMES: ColorTheme[] = ["default", "ocean", "sunset", "forest", "midnight", "rose"];
 const CARD_LAYOUTS: CardLayout[] = ["classic", "modern", "minimal", "detailed"];
@@ -136,14 +137,34 @@ function writeJsonStorage(key: string, value: unknown) {
   }
 }
 
-function writeThemeOverrides(value: Partial<ThemeConfig>) {
-  writeJsonStorage(THEME_OVERRIDES_STORAGE_KEY, value);
-
+function removeStorage(key: string) {
   if (typeof window === "undefined" || !window.localStorage) {
     return;
   }
 
-  window.localStorage.removeItem(LEGACY_THEME_STORAGE_KEY);
+  window.localStorage.removeItem(key);
+}
+
+function readStringStorage(key: string): string | null {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return null;
+  }
+
+  return window.localStorage.getItem(key);
+}
+
+function writeStringStorage(key: string, value: string) {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return;
+  }
+
+  window.localStorage.setItem(key, value);
+}
+
+function writeThemeOverrides(value: Partial<ThemeConfig>) {
+  writeJsonStorage(THEME_OVERRIDES_STORAGE_KEY, value);
+
+  removeStorage(LEGACY_THEME_STORAGE_KEY);
 }
 
 function parseThemeSettings(input: unknown): Record<string, unknown> {
@@ -185,6 +206,25 @@ function readDottedValue(input: Record<string, unknown>, dottedKey: string): unk
   }
 
   return input[dottedKey];
+}
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(",")}]`;
+  }
+
+  if (isRecord(value)) {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`)
+      .join(",")}}`;
+  }
+
+  return JSON.stringify(value);
+}
+
+function getManagedSettingsSignature(input: Record<string, unknown>): string {
+  return stableStringify(input);
 }
 
 function normalizeThemeConfig(config: Partial<ThemeConfig> | null | undefined): ThemeConfig {
@@ -287,6 +327,15 @@ function readInitialNodeViewOverride(): NodeViewMode | undefined {
   return pickEnum(readJsonStorage(NODE_VIEW_STORAGE_KEY), NODE_VIEW_MODES);
 }
 
+function hasLocalOverrides() {
+  return (
+    Object.keys(normalizeThemeConfigOverrides(readJsonStorage(THEME_OVERRIDES_STORAGE_KEY))).length > 0 ||
+    Object.keys(extractLegacyThemeOverrides(readJsonStorage(LEGACY_THEME_STORAGE_KEY))).length > 0 ||
+    Object.keys(normalizeStatusCardsVisibilityOverrides(readJsonStorage(STATUS_CARDS_STORAGE_KEY))).length > 0 ||
+    readInitialNodeViewOverride() !== undefined
+  );
+}
+
 function dispatchCustomEvent<T>(eventName: string, detail: T) {
   if (typeof window === "undefined") {
     return;
@@ -353,6 +402,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [localNodeViewOverride, setLocalNodeViewOverride] =
     useState<NodeViewMode | undefined>(readInitialNodeViewOverride);
   const [managedThemeSettings, setManagedThemeSettings] = useState<ManagedThemeSettings>({});
+  const [managedSettingsSignature, setManagedSettingsSignature] = useState(
+    getManagedSettingsSignature({})
+  );
   const [adminState, setAdminState] = useState<AdminState>("loading");
   const rawManagedSettingsRef = useRef<Record<string, unknown>>({});
   const pendingAdminPatchRef = useRef<ManagedThemeSettings>({});
@@ -382,10 +434,40 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     managedThemeSettings.nodeViewMode ||
     DEFAULT_NODE_VIEW_MODE;
 
+  const clearLocalOverrides = useCallback(() => {
+    setLocalThemeOverrides({});
+    setLocalStatusCardsOverrides({});
+    setLocalNodeViewOverride(undefined);
+
+    writeThemeOverrides({});
+    writeJsonStorage(STATUS_CARDS_STORAGE_KEY, {});
+    writeJsonStorage(NODE_VIEW_STORAGE_KEY, undefined);
+    removeStorage(LOCAL_OVERRIDE_BASE_SIGNATURE_KEY);
+  }, []);
+
+  const applyManagedSettings = useCallback((rawSettings: Record<string, unknown>) => {
+    const nextSignature = getManagedSettingsSignature(rawSettings);
+    const localBaseSignature = readStringStorage(LOCAL_OVERRIDE_BASE_SIGNATURE_KEY);
+    const shouldClearLocalOverrides =
+      Object.keys(rawSettings).length > 0 &&
+      hasLocalOverrides() &&
+      localBaseSignature !== nextSignature;
+
+    rawManagedSettingsRef.current = rawSettings;
+    setManagedThemeSettings(normalizeManagedThemeSettings(rawSettings));
+    setManagedSettingsSignature(nextSignature);
+
+    if (shouldClearLocalOverrides) {
+      clearLocalOverrides();
+    }
+  }, [clearLocalOverrides]);
+
   const persistManagedSettings = useCallback((patch: ManagedThemeSettings) => {
     const nextRaw = mergeManagedSettings(rawManagedSettingsRef.current, patch);
     rawManagedSettingsRef.current = nextRaw;
     setManagedThemeSettings(normalizeManagedThemeSettings(nextRaw));
+    setManagedSettingsSignature(getManagedSettingsSignature(nextRaw));
+    clearLocalOverrides();
     queuedSaveRef.current = nextRaw;
 
     if (savingRef.current) {
@@ -408,7 +490,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     void run();
-  }, []);
+  }, [clearLocalOverrides]);
 
   const applyAdminOrLocalPatch = useCallback(
     (patch: ManagedThemeSettings) => {
@@ -434,10 +516,13 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setLocalThemeOverrides((prev) => {
         const next = isAdminPatch ? removeKeys(prev, keys) : { ...prev, ...patch };
         writeThemeOverrides(next);
+        if (!isAdminPatch) {
+          writeStringStorage(LOCAL_OVERRIDE_BASE_SIGNATURE_KEY, managedSettingsSignature);
+        }
         return next;
       });
     },
-    [applyAdminOrLocalPatch]
+    [applyAdminOrLocalPatch, managedSettingsSignature]
   );
 
   const setLocalStatusCardsPatch = useCallback(
@@ -448,6 +533,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setLocalStatusCardsOverrides((prev) => {
         const next = isAdminPatch ? removeKeys(prev, keys) : { ...prev, ...patch };
         writeJsonStorage(STATUS_CARDS_STORAGE_KEY, next);
+        if (!isAdminPatch) {
+          writeStringStorage(LOCAL_OVERRIDE_BASE_SIGNATURE_KEY, managedSettingsSignature);
+        }
         dispatchCustomEvent(STATUS_CARDS_CHANGE_EVENT, {
           ...DEFAULT_STATUS_CARDS_VISIBILITY,
           ...(managedThemeSettings.statusCardsVisibility || {}),
@@ -456,7 +544,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return next;
       });
     },
-    [applyAdminOrLocalPatch, managedThemeSettings.statusCardsVisibility]
+    [applyAdminOrLocalPatch, managedSettingsSignature, managedThemeSettings.statusCardsVisibility]
   );
 
   const setNodeViewModeValue = useCallback(
@@ -466,9 +554,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
       setLocalNodeViewOverride(nextLocalValue);
       writeJsonStorage(NODE_VIEW_STORAGE_KEY, nextLocalValue);
+      if (!isAdminPatch) {
+        writeStringStorage(LOCAL_OVERRIDE_BASE_SIGNATURE_KEY, managedSettingsSignature);
+      }
       dispatchCustomEvent(NODE_VIEW_CHANGE_EVENT, value);
     },
-    [applyAdminOrLocalPatch]
+    [applyAdminOrLocalPatch, managedSettingsSignature]
   );
 
   useEffect(() => {
@@ -479,19 +570,17 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       .then((resp) => {
         if (!mounted) return;
         const rawSettings = parseThemeSettings(resp?.data?.theme_settings);
-        rawManagedSettingsRef.current = rawSettings;
-        setManagedThemeSettings(normalizeManagedThemeSettings(rawSettings));
+        applyManagedSettings(rawSettings);
       })
       .catch(() => {
         if (!mounted) return;
-        rawManagedSettingsRef.current = {};
-        setManagedThemeSettings({});
+        applyManagedSettings({});
       });
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [applyManagedSettings]);
 
   useEffect(() => {
     let mounted = true;
