@@ -529,6 +529,142 @@
         "default": true
       }
     ],
-    "data": {}
+    "data": [
+      {
+        "type": "title",
+        "name": "Theme Settings"
+      },
+      {
+        "key": "colorTheme",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认颜色主题",
+          "en-US": "Default Color Theme"
+        },
+        "help": {
+          "zh-CN": "设置主题默认颜色方案，访客仍可在本地覆盖。",
+          "en-US": "Set the default color scheme. Visitors can still override it locally."
+        },
+        "default": "default",
+        "options": "default,ocean,sunset,forest,midnight,rose"
+      },
+      {
+        "key": "cardLayout",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认卡片布局",
+          "en-US": "Default Card Layout"
+        },
+        "default": "classic",
+        "options": "classic,modern,minimal,detailed"
+      },
+      {
+        "key": "cardDesign",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认卡片设计",
+          "en-US": "Default Card Design"
+        },
+        "default": "default",
+        "options": "default,quality-bars"
+      },
+      {
+        "key": "statusDesign",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认状态设计",
+          "en-US": "Default Status Design"
+        },
+        "default": "default",
+        "options": "default,speed"
+      },
+      {
+        "key": "graphDesign",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认图表设计",
+          "en-US": "Default Graph Design"
+        },
+        "default": "circle",
+        "options": "circle,progress,bar,minimal"
+      },
+      {
+        "key": "nodeViewMode",
+        "type": "select",
+        "name": {
+          "zh-CN": "默认节点视图",
+          "en-US": "Default Node View"
+        },
+        "default": "grid",
+        "options": "grid,table"
+      },
+      {
+        "key": "backgroundImageUrl",
+        "type": "string",
+        "name": {
+          "zh-CN": "背景图片链接",
+          "en-US": "Background Image URL"
+        },
+        "default": ""
+      },
+      {
+        "type": "title",
+        "name": "Status Cards"
+      },
+      {
+        "key": "statusCardsVisibility.currentTime",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示当前时间",
+          "en-US": "Show Current Time"
+        },
+        "default": true
+      },
+      {
+        "key": "statusCardsVisibility.currentOnline",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示当前在线",
+          "en-US": "Show Current Online"
+        },
+        "default": true
+      },
+      {
+        "key": "statusCardsVisibility.regionOverview",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示点亮地区",
+          "en-US": "Show Region Overview"
+        },
+        "default": true
+      },
+      {
+        "key": "statusCardsVisibility.trafficOverview",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示流量概览",
+          "en-US": "Show Traffic Overview"
+        },
+        "default": true
+      },
+      {
+        "key": "statusCardsVisibility.networkSpeed",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示网络速率",
+          "en-US": "Show Network Speed"
+        },
+        "default": true
+      },
+      {
+        "key": "statusCardsVisibility.mapView",
+        "type": "switch",
+        "name": {
+          "zh-CN": "显示地图",
+          "en-US": "Show Map View"
+        },
+        "default": true
+      }
+    ]
   }
 }
