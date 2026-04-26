@@ -119,6 +119,10 @@ This repository is designed to be used as a custom Komari theme.
 Contributions are welcome.  
 If you find issues or have ideas for improvements, feel free to open an issue or submit a pull request.
 
+## Thanks
+[piphase/komari-nexus](https://github.com/piphase/komari-nexus)
+[fanchengliu/komari-next-pro](https://github.com/fanchengliu/komari-next-pro)
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=tonyliuzj/komari-next&type=date&legend=top-left)](https://www.star-history.com/#tonyliuzj/komari-next&type=date&legend=top-left)
