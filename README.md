@@ -15,6 +15,9 @@ It is built with **Next.js**, **TypeScript**, **Tailwind CSS** and **Shadcn UI**
 
 ## Features
 
+- Map! Map! Map!
+- Able to set settings in admin panel
+- Remaining Value Calculator
 - Real‑time dashboard for server and node status
 - Instance detail pages with load and latency charts
 - Node list and management views
