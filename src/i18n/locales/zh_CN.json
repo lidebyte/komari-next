@@ -874,13 +874,6 @@
       "rose": "玫瑰",
       "sunset": "日落"
     },
-    "guestDisplay": {
-      "title": "游客显示",
-      "showPrice": "向游客显示价格",
-      "showPriceDescription": "向访客显示节点价格。",
-      "showExpiredAt": "向游客显示到期时间",
-      "showExpiredAtDescription": "向访客显示节点到期状态。"
-    },
     "graphDesign": "图表设计",
     "graphDesigns": {
       "bar": {
@@ -899,6 +892,13 @@
         "description": "线性进度",
         "label": "进度条"
       }
+    },
+    "guestDisplay": {
+      "showExpiredAt": "向游客显示到期时间",
+      "showExpiredAtDescription": "向访客显示节点到期状态。",
+      "showPrice": "向游客显示价格",
+      "showPriceDescription": "向访客显示节点价格。",
+      "title": "游客显示"
     },
     "showRamDiskTotal": "显示总内存/磁盘",
     "showRamDiskTotalDescription": "显示内存和磁盘的已用 / 总量。",
