@@ -10,6 +10,15 @@ type Account = {
   "2fa_enabled": boolean;
 };
 
+const anonymousAccount: Account = {
+  logged_in: false,
+  sso_id: "",
+  sso_type: "",
+  username: "",
+  uuid: "",
+  "2fa_enabled": false,
+};
+
 // Context
 interface AccountContextType{
     account: Account | null;
@@ -33,6 +42,10 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setError(null);
         try {
         const response = await fetch("/api/me");
+        if (response.status === 401 || response.status === 403) {
+            setAccount(anonymousAccount);
+            return;
+        }
         if (!response.ok) {
             throw new Error("Failed to fetch account data");
         }
