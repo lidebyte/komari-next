@@ -874,6 +874,13 @@
       "rose": "玫瑰",
       "sunset": "日落"
     },
+    "guestDisplay": {
+      "title": "游客显示",
+      "showPrice": "向游客显示价格",
+      "showPriceDescription": "向访客显示节点价格。",
+      "showExpiredAt": "向游客显示到期时间",
+      "showExpiredAtDescription": "向访客显示节点到期状态。"
+    },
     "graphDesign": "图表设计",
     "graphDesigns": {
       "bar": {

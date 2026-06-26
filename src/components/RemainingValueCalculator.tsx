@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNodeList } from "@/contexts/NodeListContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMounted } from "@/hooks/useMounted";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -196,6 +197,7 @@ export default function RemainingValueCalculator() {
   const mounted = useMounted();
   const isMobile = useIsMobile();
   const { nodeList } = useNodeList();
+  const { guestDisplay } = useTheme();
   const [open, setOpen] = useState(false);
   const [displayCurrency, setDisplayCurrency] =
     useLocalStorage<DisplayCurrency>("remainingValueDisplayCurrency", "USD");
@@ -299,6 +301,10 @@ export default function RemainingValueCalculator() {
   };
 
   const openPanel = async () => {
+    if (!guestDisplay.showPrice || !guestDisplay.showExpiredAt) {
+      return;
+    }
+
     setOpen(true);
 
     if (
@@ -327,7 +333,7 @@ export default function RemainingValueCalculator() {
     return () => {
       window.removeEventListener(OPEN_REMAINING_VALUE_CALCULATOR_EVENT, handleExternalOpen);
     };
-  }, [displayCurrency, ratesState, snapshot.active.length]);
+  }, [displayCurrency, guestDisplay.showExpiredAt, guestDisplay.showPrice, ratesState, snapshot.active.length]);
 
   useEffect(() => {
     if (
@@ -586,7 +592,7 @@ export default function RemainingValueCalculator() {
     </div>
   );
 
-  if (!mounted || !ready) {
+  if (!mounted || !ready || !guestDisplay.showPrice || !guestDisplay.showExpiredAt) {
     return null;
   }
 

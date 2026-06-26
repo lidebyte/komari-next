@@ -672,6 +672,13 @@
     "backgroundBlurIntensity": "強度",
     "apply": "套用",
     "clear": "清除",
+    "guestDisplay": {
+      "title": "訪客顯示",
+      "showPrice": "向訪客顯示價格",
+      "showPriceDescription": "向訪客顯示節點價格。",
+      "showExpiredAt": "向訪客顯示到期時間",
+      "showExpiredAtDescription": "向訪客顯示節點到期狀態。"
+    },
     "colorThemes": {
       "default": "預設",
       "ocean": "海洋",

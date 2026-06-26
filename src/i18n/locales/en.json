@@ -672,6 +672,13 @@
     "backgroundBlurIntensity": "Intensity",
     "apply": "Apply",
     "clear": "Clear",
+    "guestDisplay": {
+      "title": "Guest Display",
+      "showPrice": "Show prices to guests",
+      "showPriceDescription": "Display node price for visitors.",
+      "showExpiredAt": "Show expiration to guests",
+      "showExpiredAtDescription": "Display node expiration status for visitors."
+    },
     "colorThemes": {
       "default": "Default",
       "ocean": "Ocean",

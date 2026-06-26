@@ -206,6 +206,18 @@
                 "type": "bool",
                 "label": "Show map view",
                 "default": true
+            },
+            {
+                "key": "guestDisplay.showPrice",
+                "type": "bool",
+                "label": "Show prices to guests",
+                "default": false
+            },
+            {
+                "key": "guestDisplay.showExpiredAt",
+                "type": "bool",
+                "label": "Show expiration to guests",
+                "default": false
             }
         ],
         "fields": [
@@ -455,6 +467,44 @@
                     "en-US": "Show Map View"
                 },
                 "default": true
+            },
+            {
+                "type": "title",
+                "name": {
+                    "zh-CN": "游客显示",
+                    "zh-TW": "訪客顯示",
+                    "en-US": "Guest Display"
+                }
+            },
+            {
+                "key": "guestDisplay.showPrice",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示价格",
+                    "zh-TW": "向訪客顯示價格",
+                    "en-US": "Show Prices to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点价格。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點價格。",
+                    "en-US": "When enabled, visitors can see node prices."
+                },
+                "default": false
+            },
+            {
+                "key": "guestDisplay.showExpiredAt",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示到期时间",
+                    "zh-TW": "向訪客顯示到期時間",
+                    "en-US": "Show Expiration to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点到期状态。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點到期狀態。",
+                    "en-US": "When enabled, visitors can see node expiration status."
+                },
+                "default": false
             }
         ],
         "options": [
@@ -700,6 +750,44 @@
                     "en-US": "Show Map View"
                 },
                 "default": true
+            },
+            {
+                "type": "title",
+                "name": {
+                    "zh-CN": "游客显示",
+                    "zh-TW": "訪客顯示",
+                    "en-US": "Guest Display"
+                }
+            },
+            {
+                "key": "guestDisplay.showPrice",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示价格",
+                    "zh-TW": "向訪客顯示價格",
+                    "en-US": "Show Prices to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点价格。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點價格。",
+                    "en-US": "When enabled, visitors can see node prices."
+                },
+                "default": false
+            },
+            {
+                "key": "guestDisplay.showExpiredAt",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示到期时间",
+                    "zh-TW": "向訪客顯示到期時間",
+                    "en-US": "Show Expiration to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点到期状态。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點到期狀態。",
+                    "en-US": "When enabled, visitors can see node expiration status."
+                },
+                "default": false
             }
         ],
         "items": [
@@ -949,6 +1037,44 @@
                     "en-US": "Show Map View"
                 },
                 "default": true
+            },
+            {
+                "type": "title",
+                "name": {
+                    "zh-CN": "游客显示",
+                    "zh-TW": "訪客顯示",
+                    "en-US": "Guest Display"
+                }
+            },
+            {
+                "key": "guestDisplay.showPrice",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示价格",
+                    "zh-TW": "向訪客顯示價格",
+                    "en-US": "Show Prices to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点价格。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點價格。",
+                    "en-US": "When enabled, visitors can see node prices."
+                },
+                "default": false
+            },
+            {
+                "key": "guestDisplay.showExpiredAt",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示到期时间",
+                    "zh-TW": "向訪客顯示到期時間",
+                    "en-US": "Show Expiration to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点到期状态。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點到期狀態。",
+                    "en-US": "When enabled, visitors can see node expiration status."
+                },
+                "default": false
             }
         ],
         "data": [
@@ -1198,6 +1324,44 @@
                     "en-US": "Show Map View"
                 },
                 "default": true
+            },
+            {
+                "type": "title",
+                "name": {
+                    "zh-CN": "游客显示",
+                    "zh-TW": "訪客顯示",
+                    "en-US": "Guest Display"
+                }
+            },
+            {
+                "key": "guestDisplay.showPrice",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示价格",
+                    "zh-TW": "向訪客顯示價格",
+                    "en-US": "Show Prices to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点价格。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點價格。",
+                    "en-US": "When enabled, visitors can see node prices."
+                },
+                "default": false
+            },
+            {
+                "key": "guestDisplay.showExpiredAt",
+                "type": "switch",
+                "name": {
+                    "zh-CN": "向游客显示到期时间",
+                    "zh-TW": "向訪客顯示到期時間",
+                    "en-US": "Show Expiration to Guests"
+                },
+                "help": {
+                    "zh-CN": "开启后，未登录访客可以看到节点到期状态。",
+                    "zh-TW": "開啟後，未登入訪客可以看到節點到期狀態。",
+                    "en-US": "When enabled, visitors can see node expiration status."
+                },
+                "default": false
             }
         ]
     }

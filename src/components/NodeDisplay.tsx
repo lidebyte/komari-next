@@ -30,7 +30,7 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
     "all"
   );
   const searchRef = useRef<HTMLInputElement>(null);
-  const { isThemeLoaded } = useTheme();
+  const { guestDisplay, isThemeLoaded } = useTheme();
 
   // 获取所有的分组
   const groups = useMemo(() => {
@@ -90,7 +90,9 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
 
       // 价格搜索（如果输入数字）
       const priceMatch =
-        !isNaN(Number(term)) && node.price.toString().includes(term);
+        guestDisplay.showPrice &&
+        !isNaN(Number(term)) &&
+        node.price.toString().includes(term);
 
       // 状态搜索
       const isOnline = liveData?.online?.includes(node.uuid) || false;
@@ -100,7 +102,7 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
 
       return basicMatch || regionMatch || priceMatch || statusMatch;
     });
-  }, [nodes, searchTerm, liveData, selectedGroup]);
+  }, [nodes, searchTerm, liveData, selectedGroup, guestDisplay.showPrice]);
 
   return (
     <div className="w-full space-y-6">

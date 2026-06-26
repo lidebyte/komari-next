@@ -44,6 +44,8 @@ const PriceTags = ({
   tags = "",
   ip4 = "",
   ip6 = "",
+  showPrice = true,
+  showExpiredAt = true,
   compact = false,
   maxCustomTags = compact ? 3 : undefined,
   className,
@@ -58,6 +60,8 @@ const PriceTags = ({
   tags?: string;
   ip4?: any;
   ip6?: any;
+  showPrice?: boolean;
+  showExpiredAt?: boolean;
   compact?: boolean;
   maxCustomTags?: number;
 } & React.ComponentProps<typeof Flex>) => {
@@ -76,9 +80,41 @@ const PriceTags = ({
     className
   );
 
-  if (price == 0) {
+  const hasBillingInfo = price != 0;
+  const shouldShowPrice = showPrice && hasBillingInfo;
+  const shouldShowExpiredAt = showExpiredAt && hasBillingInfo;
+
+  if (!shouldShowPrice && !shouldShowExpiredAt) {
     return (
       <Flex {...props} gap={gap} wrap={wrap} className={containerClassName}>
+        {hasBillingInfo && ip4 && (
+          <Badge variant="outline" className={badgeClassName}>
+            <label
+              className={cn(
+                "flex justify-center items-center gap-1 text-xs",
+                compact && "text-[10px] leading-none"
+              )}
+            >
+              <div className="border-2 rounded-4xl border-green-500"></div>
+              V4
+            </label>
+          </Badge>
+        )}
+
+        {hasBillingInfo && ip6 && (
+          <Badge variant="outline" className={badgeClassName}>
+            <label
+              className={cn(
+                "flex justify-center items-center gap-1 text-xs",
+                compact && "text-[10px] leading-none"
+              )}
+            >
+              <div className="border-2 rounded-4xl border-green-500"></div>
+              V6
+            </label>
+          </Badge>
+        )}
+
         <CustomTags tags={tags} compact={compact} maxVisible={maxCustomTags} />
       </Flex>
     );
@@ -114,70 +150,74 @@ const PriceTags = ({
         </Badge>
       )}
 
-      <Badge color="iris" variant="outline" className={badgeClassName}>
-        <label className={labelClassName}>
-          {price == -1 ? t("common.free") : `${currency}${price}`}/
-          {(() => {
-            if (billing_cycle >= 27 && billing_cycle <= 32) {
-              return t("common.monthly");
-            } else if (billing_cycle >= 87 && billing_cycle <= 95) {
-              return t("common.quarterly");
-            } else if (billing_cycle >= 175 && billing_cycle <= 185) {
-              return t("common.semi_annual");
-            } else if (billing_cycle >= 360 && billing_cycle <= 370) {
-              return t("common.annual");
-            } else if (billing_cycle >= 720 && billing_cycle <= 750) {
-              return t("common.biennial");
-            } else if (billing_cycle >= 1080 && billing_cycle <= 1150) {
-              return t("common.triennial");
-            } else if (billing_cycle >= 1800 && billing_cycle <= 1850) {
-              return t("common.quinquennial");
-            } else if (billing_cycle == -1) {
-              return t("common.once");
-            } else {
-              return `${billing_cycle} ${t("nodeCard.time_day")}`;
-            }
-          })()}
-        </label>
-      </Badge>
-      <Badge
-        color={(() => {
-          const expiredDate = new Date(expired_at);
-          const now = new Date();
-          const diffTime = expiredDate.getTime() - now.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          if (diffDays <= 0 || diffDays <= 7) {
-            return "red";
-          } else if (diffDays <= 15) {
-            return "orange";
-          } else {
-            return "green";
-          }
-        })()}
-        variant="outline"
-        className={badgeClassName}
-      >
-        <label className={labelClassName}>
-          {(() => {
+      {shouldShowPrice && (
+        <Badge color="iris" variant="outline" className={badgeClassName}>
+          <label className={labelClassName}>
+            {price == -1 ? t("common.free") : `${currency}${price}`}/
+            {(() => {
+              if (billing_cycle >= 27 && billing_cycle <= 32) {
+                return t("common.monthly");
+              } else if (billing_cycle >= 87 && billing_cycle <= 95) {
+                return t("common.quarterly");
+              } else if (billing_cycle >= 175 && billing_cycle <= 185) {
+                return t("common.semi_annual");
+              } else if (billing_cycle >= 360 && billing_cycle <= 370) {
+                return t("common.annual");
+              } else if (billing_cycle >= 720 && billing_cycle <= 750) {
+                return t("common.biennial");
+              } else if (billing_cycle >= 1080 && billing_cycle <= 1150) {
+                return t("common.triennial");
+              } else if (billing_cycle >= 1800 && billing_cycle <= 1850) {
+                return t("common.quinquennial");
+              } else if (billing_cycle == -1) {
+                return t("common.once");
+              } else {
+                return `${billing_cycle} ${t("nodeCard.time_day")}`;
+              }
+            })()}
+          </label>
+        </Badge>
+      )}
+      {shouldShowExpiredAt && (
+        <Badge
+          color={(() => {
             const expiredDate = new Date(expired_at);
             const now = new Date();
             const diffTime = expiredDate.getTime() - now.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays <= 0) {
-              return t("common.expired");
-            } else if (diffDays > 36500) {
-              // 100 years approximately
-              return t("common.long_term");
+            if (diffDays <= 0 || diffDays <= 7) {
+              return "red";
+            } else if (diffDays <= 15) {
+              return "orange";
             } else {
-              return t("common.expired_in", {
-                days: diffDays,
-              });
+              return "green";
             }
           })()}
-        </label>
-      </Badge>
+          variant="outline"
+          className={badgeClassName}
+        >
+          <label className={labelClassName}>
+            {(() => {
+              const expiredDate = new Date(expired_at);
+              const now = new Date();
+              const diffTime = expiredDate.getTime() - now.getTime();
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+              if (diffDays <= 0) {
+                return t("common.expired");
+              } else if (diffDays > 36500) {
+                // 100 years approximately
+                return t("common.long_term");
+              } else {
+                return t("common.expired_in", {
+                  days: diffDays,
+                });
+              }
+            })()}
+          </label>
+        </Badge>
+      )}
       <CustomTags tags={tags} compact={compact} maxVisible={maxCustomTags} />
     </Flex>
   );

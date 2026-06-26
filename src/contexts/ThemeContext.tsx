@@ -52,8 +52,14 @@ export type StatusCardsVisibility = {
   mapView: boolean;
 };
 
+export type GuestDisplaySettings = {
+  showPrice: boolean;
+  showExpiredAt: boolean;
+};
+
 export interface ManagedThemeSettings extends Partial<ThemeConfig> {
   statusCardsVisibility?: Partial<StatusCardsVisibility>;
+  guestDisplay?: Partial<GuestDisplaySettings>;
   nodeViewMode?: NodeViewMode;
   appearance?: Appearance;
   language?: string;
@@ -64,7 +70,9 @@ interface ThemeContextType {
   managedThemeSettings: ManagedThemeSettings;
   isThemeSettingsAdmin: boolean;
   isThemeLoaded: boolean;
+  isLoggedIn: boolean;
   statusCardsVisibility: StatusCardsVisibility;
+  guestDisplay: GuestDisplaySettings;
   nodeViewMode: NodeViewMode;
   appearance: Appearance;
   language: string;
@@ -85,6 +93,7 @@ interface ThemeContextType {
   setCardBlurIntensity: (intensity: number) => void;
   setCardExtraBlurIntensity: (intensity: number) => void;
   setStatusCardVisibility: (key: keyof StatusCardsVisibility, checked: boolean) => void;
+  setGuestDisplay: (key: keyof GuestDisplaySettings, checked: boolean) => void;
   setNodeViewMode: (value: NodeViewMode) => void;
   setAppearance: (value: Appearance) => void;
   setLanguage: (value: string) => void;
@@ -160,6 +169,11 @@ export const DEFAULT_STATUS_CARDS_VISIBILITY: StatusCardsVisibility = {
   trafficOverview: true,
   networkSpeed: true,
   mapView: true,
+};
+
+export const DEFAULT_GUEST_DISPLAY_SETTINGS: GuestDisplaySettings = {
+  showPrice: false,
+  showExpiredAt: false,
 };
 
 export const DEFAULT_NODE_VIEW_MODE: NodeViewMode = "grid";
@@ -528,6 +542,22 @@ function normalizeStatusCardsVisibilityOverrides(input: unknown): Partial<Status
   return result;
 }
 
+function normalizeGuestDisplaySettings(input: unknown): Partial<GuestDisplaySettings> {
+  if (!isRecord(input)) {
+    return {};
+  }
+
+  const result: Partial<GuestDisplaySettings> = {};
+  (Object.keys(DEFAULT_GUEST_DISPLAY_SETTINGS) as Array<keyof GuestDisplaySettings>).forEach((key) => {
+    const value = pickBoolean(input[key]);
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  });
+
+  return result;
+}
+
 function normalizeManagedThemeSettings(input: unknown): ManagedThemeSettings {
   const source = parseThemeSettings(input);
   const result: ManagedThemeSettings = normalizeThemeConfigOverrides(source);
@@ -535,6 +565,8 @@ function normalizeManagedThemeSettings(input: unknown): ManagedThemeSettings {
   const appearance = pickAppearance(readDottedValue(source, "appearance"));
   const language = pickManagedLanguage(readDottedValue(source, "language"));
   const statusCardsVisibility: Partial<StatusCardsVisibility> = {};
+  const guestDisplay: Partial<GuestDisplaySettings> =
+    normalizeGuestDisplaySettings(readDottedValue(source, "guestDisplay"));
 
   (Object.keys(DEFAULT_STATUS_CARDS_VISIBILITY) as Array<keyof StatusCardsVisibility>).forEach((key) => {
     const value = pickBoolean(readDottedValue(source, `statusCardsVisibility.${key}`));
@@ -543,8 +575,19 @@ function normalizeManagedThemeSettings(input: unknown): ManagedThemeSettings {
     }
   });
 
+  (Object.keys(DEFAULT_GUEST_DISPLAY_SETTINGS) as Array<keyof GuestDisplaySettings>).forEach((key) => {
+    const value = pickBoolean(readDottedValue(source, `guestDisplay.${key}`));
+    if (value !== undefined) {
+      guestDisplay[key] = value;
+    }
+  });
+
   if (Object.keys(statusCardsVisibility).length > 0) {
     result.statusCardsVisibility = statusCardsVisibility;
+  }
+
+  if (Object.keys(guestDisplay).length > 0) {
+    result.guestDisplay = guestDisplay;
   }
 
   if (nodeViewMode) {
@@ -679,6 +722,17 @@ function mergeManagedSettings(
     };
   }
 
+  if (patch.guestDisplay) {
+    Object.keys(patch.guestDisplay).forEach((key) => {
+      delete next[`guestDisplay.${key}`];
+    });
+
+    next.guestDisplay = {
+      ...(isRecord(next.guestDisplay) ? next.guestDisplay : {}),
+      ...patch.guestDisplay,
+    };
+  }
+
   return next;
 }
 
@@ -728,6 +782,25 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       ...localStatusCardsOverrides,
     }),
     [localStatusCardsOverrides, managedThemeSettings.statusCardsVisibility]
+  );
+
+  const isLoggedIn = adminState === "yes";
+
+  const guestDisplay = useMemo<GuestDisplaySettings>(
+    () => {
+      if (isLoggedIn) {
+        return {
+          showPrice: true,
+          showExpiredAt: true,
+        };
+      }
+
+      return {
+        ...DEFAULT_GUEST_DISPLAY_SETTINGS,
+        ...(managedThemeSettings.guestDisplay || {}),
+      };
+    },
+    [isLoggedIn, managedThemeSettings.guestDisplay]
   );
 
   const nodeViewMode =
@@ -1192,6 +1265,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setLocalStatusCardsPatch({ [key]: checked }),
     [setLocalStatusCardsPatch]
   );
+  const setGuestDisplay = useCallback(
+    (key: keyof GuestDisplaySettings, checked: boolean) => {
+      applyAdminOrLocalPatch({ guestDisplay: { [key]: checked } });
+    },
+    [applyAdminOrLocalPatch]
+  );
 
   const value = useMemo<ThemeContextType>(
     () => ({
@@ -1199,7 +1278,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       managedThemeSettings,
       isThemeSettingsAdmin: adminState === "yes",
       isThemeLoaded,
+      isLoggedIn,
       statusCardsVisibility,
+      guestDisplay,
       nodeViewMode,
       appearance,
       language,
@@ -1220,6 +1301,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setCardBlurIntensity,
       setCardExtraBlurIntensity,
       setStatusCardVisibility,
+      setGuestDisplay,
       setNodeViewMode: setNodeViewModeValue,
       setAppearance: setAppearanceValue,
       setLanguage: setLanguageValue,
@@ -1227,7 +1309,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     [
       appearance,
       adminState,
+      guestDisplay,
       isThemeLoaded,
+      isLoggedIn,
       language,
       managedThemeSettings,
       nodeViewMode,
@@ -1245,6 +1329,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setCardLayout,
       setCardTransparentIntensity,
       setColorTheme,
+      setGuestDisplay,
       setGraphDesign,
       setShowRamDiskTotal,
       setLanguageValue,

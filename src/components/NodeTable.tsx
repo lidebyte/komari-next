@@ -47,9 +47,11 @@ interface SortState {
 
 const NodeTable: React.FC<NodeTableProps> = ({ nodes, liveData }) => {
   const [t] = useTranslation();
-  const { themeConfig } = useTheme();
+  const { guestDisplay, themeConfig } = useTheme();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [sortState, setSortState] = useState<SortState>({ field: null, order: 'default' });
+  const showPrice = guestDisplay.showPrice;
+  const showExpiredAt = guestDisplay.showExpiredAt;
 
   const toggleRowExpansion = (uuid: string) => {
     setExpandedRows((prev) => {
@@ -160,13 +162,16 @@ const NodeTable: React.FC<NodeTableProps> = ({ nodes, liveData }) => {
     return sortState.order === 'desc' ? -comparison : comparison;
   });
 
-  const showPriceColumn = nodes.some(node => node.price !== 0);
-  const tableColumnCount = showPriceColumn ? 10 : 9;
+  const showBillingColumn = (showPrice || showExpiredAt) && nodes.some(node => node.price !== 0);
+  const billingColumnTitle = showPrice
+    ? t("nodeCard.price")
+    : t("nodeCard.expires_at", { defaultValue: "Expires At" });
+  const tableColumnCount = showBillingColumn ? 10 : 9;
 
   return (
     <div data-card-blur-surface="true" className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <Table className={cn("w-full table-fixed", showPriceColumn ? "min-w-[1240px]" : "min-w-[1084px]")}>
+        <Table className={cn("w-full table-fixed", showBillingColumn ? "min-w-[1240px]" : "min-w-[1084px]")}>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-[30px] px-2"></TableHead>
@@ -230,15 +235,18 @@ const NodeTable: React.FC<NodeTableProps> = ({ nodes, liveData }) => {
                   {getSortIcon('disk')}
                 </Flex>
               </TableHead>
-              {showPriceColumn &&
+              {showBillingColumn &&
                 <TableHead
-                  className="w-[156px] cursor-pointer hover:bg-muted/50 transition-colors text-center px-2"
-                  onClick={handleSort('price')}
-                  title={t("nodeCard.sortTooltip")}
+                  className={cn(
+                    "w-[156px] transition-colors text-center px-2",
+                    showPrice && "cursor-pointer hover:bg-muted/50"
+                  )}
+                  onClick={showPrice ? handleSort('price') : undefined}
+                  title={showPrice ? t("nodeCard.sortTooltip") : undefined}
                 >
                   <Flex align="center" gap="1" justify="center" className="whitespace-nowrap">
-                    {t("nodeCard.price")}
-                    {getSortIcon('price')}
+                    {billingColumnTitle}
+                    {showPrice && getSortIcon('price')}
                   </Flex>
                 </TableHead>
               }
@@ -398,7 +406,7 @@ const NodeTable: React.FC<NodeTableProps> = ({ nodes, liveData }) => {
                       </span>
                     </div>
                   </TableCell>
-                  {showPriceColumn &&
+                  {showBillingColumn &&
                     <TableCell className="py-2 px-1.5">
                       <div className="flex min-w-0 items-center justify-center">
                         <PriceTags
@@ -411,6 +419,8 @@ const NodeTable: React.FC<NodeTableProps> = ({ nodes, liveData }) => {
                           compact
                           maxCustomTags={3}
                           className="max-w-[148px] justify-center"
+                          showPrice={showPrice}
+                          showExpiredAt={showExpiredAt}
                         />
                       </div>
                     </TableCell>

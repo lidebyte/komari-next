@@ -6,8 +6,10 @@ import {
   BackgroundBlurType,
   CardBlurType,
   ColorTheme,
+  DEFAULT_GUEST_DISPLAY_SETTINGS,
   CardDesign,
   CardLayout,
+  GuestDisplaySettings,
   GraphDesign,
   StatusDesign,
 } from '@/contexts/ThemeContext';
@@ -46,6 +48,9 @@ const ThemeSwitcher = () => {
     setCardBlurType,
     setCardTransparentIntensity,
     setCardExtraBlurIntensity,
+    isThemeSettingsAdmin,
+    managedThemeSettings,
+    setGuestDisplay,
   } = useTheme();
   const { t } = useTranslation();
   const [bgUrlInput, setBgUrlInput] = useState(themeConfig.backgroundImageUrl || '');
@@ -175,6 +180,27 @@ const ThemeSwitcher = () => {
     { key: 'trafficOverview', label: t('traffic_overview') },
     { key: 'networkSpeed', label: t('network_speed') },
     { key: 'mapView', label: t('common.map', { defaultValue: 'Map' }) },
+  ];
+  const configuredGuestDisplay: GuestDisplaySettings = {
+    ...DEFAULT_GUEST_DISPLAY_SETTINGS,
+    ...(managedThemeSettings.guestDisplay || {}),
+  };
+
+  const guestDisplaySettings: Array<{ key: keyof GuestDisplaySettings; label: string; description: string }> = [
+    {
+      key: 'showPrice',
+      label: t('themeCustomizer.guestDisplay.showPrice', { defaultValue: 'Show prices to guests' }),
+      description: t('themeCustomizer.guestDisplay.showPriceDescription', {
+        defaultValue: 'Display node price for visitors.',
+      }),
+    },
+    {
+      key: 'showExpiredAt',
+      label: t('themeCustomizer.guestDisplay.showExpiredAt', { defaultValue: 'Show expiration to guests' }),
+      description: t('themeCustomizer.guestDisplay.showExpiredAtDescription', {
+        defaultValue: 'Display node expiration status for visitors.',
+      }),
+    },
   ];
 
   return (
@@ -371,6 +397,33 @@ const ThemeSwitcher = () => {
               ))}
             </div>
           </div>
+
+          {isThemeSettingsAdmin && (
+            <div className="border-t pt-3">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                {t("themeCustomizer.guestDisplay.title", { defaultValue: "Guest Display" })}
+              </h4>
+              <div className="flex flex-col gap-3">
+                {guestDisplaySettings.map((item) => (
+                  <div key={item.key} className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium text-muted-foreground">
+                        {item.label}
+                      </div>
+                      <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={configuredGuestDisplay[item.key]}
+                      onCheckedChange={(checked) => setGuestDisplay(item.key, checked)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="border-t pt-3">
             <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">

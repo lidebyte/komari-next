@@ -242,8 +242,10 @@ interface NodeProps {
 
 const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
   const [t] = useTranslation();
-  const { themeConfig } = useTheme();
+  const { guestDisplay, themeConfig } = useTheme();
   const pingStats = usePingStats(basic.uuid, 24, pingStatsEnabled);
+  const showPrice = guestDisplay.showPrice;
+  const showExpiredAt = guestDisplay.showExpiredAt;
 
   const defaultLive = {
     cpu: { usage: 0 },
@@ -419,7 +421,9 @@ const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
               return t("common.expired_in", { days: diffDays, defaultValue: `余${diffDays}天` });
             })();
 
-            const hasPriceInfo = basic.price !== undefined || basic.expired_at;
+            const hasCompactBillingInfo =
+              (showPrice && basic.price !== undefined) ||
+              (showExpiredAt && !!basic.expired_at);
 
             // CPU 负载小字：1min / 5min / 15min 平均负载
             const load1 = liveData.load?.load1 ?? 0;
@@ -530,10 +534,14 @@ const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
                   </div>
                   {/* 右方块：价格（上行）/ 剩余天数（下行） */}
                   <div className="min-w-0 rounded-md bg-muted/40 px-2 py-1.5 flex flex-col justify-center gap-0.5 items-end">
-                    {hasPriceInfo ? (
+                    {hasCompactBillingInfo ? (
                       <>
-                        <span className="font-mono text-[11px] text-muted-foreground truncate w-full text-right">{compactPriceLine}</span>
-                        <span className="font-mono text-[11px] text-muted-foreground truncate w-full text-right">{compactExpiryLine}</span>
+                        {showPrice && (
+                          <span className="font-mono text-[11px] text-muted-foreground truncate w-full text-right">{compactPriceLine}</span>
+                        )}
+                        {showExpiredAt && (
+                          <span className="font-mono text-[11px] text-muted-foreground truncate w-full text-right">{compactExpiryLine}</span>
+                        )}
                       </>
                     ) : (
                       <span className="font-mono text-[11px] text-muted-foreground/40 text-right">--</span>
@@ -714,7 +722,7 @@ const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
           </CardFooter>
         )
       ) : (
-        (basic.price || basic.ipv4 || basic.ipv6) && (
+        ((showPrice && basic.price) || (showExpiredAt && basic.price) || basic.ipv4 || basic.ipv6 || basic.tags) && (
           <CardFooter className={footerStyles[themeConfig.cardLayout] || footerStyles.classic}>
              <PriceTags
                 hidden={false}
@@ -725,6 +733,8 @@ const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
                 tags={basic.tags}
                 ip4={basic.ipv4}
                 ip6={basic.ipv6}
+                showPrice={showPrice}
+                showExpiredAt={showExpiredAt}
              />
           </CardFooter>
         )
