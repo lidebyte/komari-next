@@ -161,4 +161,10 @@ gzip_vary on;
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tonyliuzj/komari-next&type=date&legend=top-left)](https://www.star-history.com/#tonyliuzj/komari-next&type=date&legend=top-left)
+<a href="https://www.star-history.com/?repos=tonyliuzj%2Fkomari-next&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tonyliuzj/komari-next&type=date&theme=dark&legend=top-left&sealed_token=CCb4HaFrtIea3tojdQVji_QIeCJJHLXCQcsf6DwFBymwadAojyZYZHNNlGA90MkDL1_d92L0HKj-kect88HQMggc_whTLHzsoBEh4ITSC1qGT8QJmyMQEA" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tonyliuzj/komari-next&type=date&legend=top-left&sealed_token=CCb4HaFrtIea3tojdQVji_QIeCJJHLXCQcsf6DwFBymwadAojyZYZHNNlGA90MkDL1_d92L0HKj-kect88HQMggc_whTLHzsoBEh4ITSC1qGT8QJmyMQEA" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tonyliuzj/komari-next&type=date&legend=top-left&sealed_token=CCb4HaFrtIea3tojdQVji_QIeCJJHLXCQcsf6DwFBymwadAojyZYZHNNlGA90MkDL1_d92L0HKj-kect88HQMggc_whTLHzsoBEh4ITSC1qGT8QJmyMQEA" />
+ </picture>
+</a>
