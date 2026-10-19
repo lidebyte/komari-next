@@ -8,8 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 type DetailsGridProps = {
   uuid: string;
   gap?: string;
-  box?: boolean;
-  align?: "start" | "center" | "end";
 };
 
 const StatCard = ({
@@ -38,7 +36,7 @@ const StatCard = ({
   </Card>
 );
 
-export const DetailsGrid = ({ uuid, gap, box, align }: DetailsGridProps) => {
+export const DetailsGrid = ({ uuid, gap }: DetailsGridProps) => {
   const { t } = useTranslation();
   const { nodeList } = useNodeList();
   const { live_data } = useLiveData();

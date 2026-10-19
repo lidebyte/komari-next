@@ -51,7 +51,10 @@ export async function getSettings(): Promise<SettingsResponse> {
     const data = await response.json();
 
     // Remove database metadata fields that are not needed for UI
-    const { CreatedAt, UpdatedAt, id, ...settings } = data["data"];
+    const settings = { ...data["data"] };
+    delete settings.CreatedAt;
+    delete settings.UpdatedAt;
+    delete settings.id;
 
     return normalizeSettingsPayload(settings) as SettingsResponse;
   } catch (error) {
@@ -68,29 +71,19 @@ export async function getSettings(): Promise<SettingsResponse> {
 export async function updateSettings(
   settings: Partial<SettingsResponse>
 ): Promise<void> {
-  try {
-    const normalizedSettings = normalizeSettingsPayload(settings);
-    const response = await fetch("/api/admin/settings", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(normalizedSettings),
-    });
+  const normalizedSettings = normalizeSettingsPayload(settings);
+  const response = await fetch("/api/admin/settings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(normalizedSettings),
+  });
 
-    if (!response.ok) {
-      try {
-        const errorData = await response.json();
-        console.log("Error response data:", errorData.message);
-        throw new Error(
-          `${errorData['message']}`
-        );
-      } catch (jsonError) {
-        throw jsonError
-      }
-    }
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.log("Error response data:", errorData.message);
+    throw new Error(`${errorData['message']}`);
   }
 }
 export async function updateSettingsWithToast(

@@ -78,10 +78,15 @@ export const LiveDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               totalDown: rec.net_total_in ?? rec.net_total_down ?? 0,
             },
             connections: {
-              tcp: rec.connections ?? 0,
+              // backend's "connections" field is the TCP+UDP total; derive TCP-only here.
+              tcp: (rec.connections ?? 0) - (rec.connections_udp ?? 0),
               udp: rec.connections_udp ?? 0,
             },
-            gpu: rec.gpu !== undefined ? { count: 0, average_usage: rec.gpu, detailed_info: [] } : undefined,
+            gpu: rec.gpu !== undefined ? {
+              count: rec.gpu_count ?? 0,
+              average_usage: rec.gpu_average_usage ?? rec.gpu ?? 0,
+              detailed_info: rec.gpu_detailed_info ?? [],
+            } : undefined,
             uptime: rec.uptime ?? 0,
             process: rec.process ?? 0,
             message: "",

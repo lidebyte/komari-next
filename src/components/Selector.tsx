@@ -85,7 +85,7 @@ function SelectorInner<T>(props: SelectorProps<T>) {
   const checkAllRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (checkAllRef.current) {
-      // @ts-ignore - set indeterminate
+      // @ts-expect-error - set indeterminate
       checkAllRef.current.indeterminate = isIndeterminate;
     }
   }, [isIndeterminate]);

@@ -312,14 +312,9 @@ export class RPC2Client {
     if (this.connectionState === RPC2ConnectionState.CONNECTED) {
       try {
         return await this.callViaWebSocket(method, params, options);
-      } catch (wsErr) {
-        // 回退一次 HTTP
-        try {
-          return await this.callViaHTTP(method, params, options);
-        } catch (httpErr) {
-          // HTTP 也失败，抛出 HTTP 错误（信息更贴近最终失败原因）
-          throw httpErr;
-        }
+      } catch {
+        // 回退一次 HTTP，若也失败则抛出 HTTP 错误（信息更贴近最终失败原因）
+        return await this.callViaHTTP(method, params, options);
       }
     }
 
